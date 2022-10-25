@@ -1,3 +1,5 @@
+import { runInThisContext } from "vm";
+
 /*
   В функцию appendToBody передаются 3 параметра:
   tag - имя тега, content - содержимое тега и count - количество вставок.
@@ -5,6 +7,18 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+  for(let i=0; i<count; i++){
+    const doc = document.createElement(tag);
+    const newContext = document.createTextNode(content);
+    doc.appendChild(newContext);
+    document.body.appendChild(doc);
+  }
+}
+
+function node(data){
+  this.data = data;
+  this.parent = null;
+  this.children = [];
 }
 
 /*
@@ -15,7 +29,36 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+  const div = document.createElement('div');
+  div.classList.add('item_1');
+  for(let i =2; i<=level; i++){
+    let a = 'item_' + i;
+    for (let j=0; j<childrenCount; j++){
+      div.insertAdjacentHTML('beforeend', '<div class='+a+'></div>');
+    }
+  }
+  const div1 = document.createElement('div');
+  div1.classList.add('item_1');
+  for (let i=0; i<childrenCount; i++){
+    func(childrenCount, 2, level, div1);
+  }
+  return div1;
 }
+
+function func(count_max, lev, lev_max, prev){
+  if (lev>lev_max){
+    return;
+  }
+  else{
+    const cur = document.createElement('div');
+    cur.classList.add('item_'+lev);
+    prev.appendChild(cur);
+    for (let i=0; i<count_max; i++){
+      func(count_max, lev+1, lev_max, cur);
+    }
+    return;
+    }
+  }
 
 /*
   Используйте функцию для создания дерева тегов DIV из предыдущего задания.
@@ -26,4 +69,13 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+  let tree = generateTree(2, 3);
+
+  [].forEach.call(tree.querySelectorAll('div.item_2'), function(divInner){
+    let sec = document.createElement('SECTION');
+    sec.classList.add('item_2');
+    sec.innerHTML = divInner.innerHTML;
+    divInner.parentNode.replaceChild(sec,divInner);
+  });
+  return tree;
 }
